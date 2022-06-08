@@ -44,6 +44,49 @@ Staff.prototype.xepLoai = function () {
 };
 
 var staffs = [];
+init();
+
+// Hàm này sẽ tự động được gọi đầu tiên khi chương trình được chạy
+// Hàm này dùng để lấy data từ local storage và gán lại cho mảng students sau đó hiển thị ra giao diện
+function init() { 
+  // B1: Lấy data từ localStorage
+  // Khi lấy data từ localStorage lên, nếu data là array/object (đã bị stringify) thì cần dùng hàm JSON.parse để chuyển data về lại array/object
+  staffs = JSON.parse(localStorage.getItem("staffs")) || [];
+
+  // Bởi vì JSON.stringify tự động loại bỏ các phương thức (function) bên trong object => các object student bên trong mảng bị mất hàm calcScore
+
+  for (var i = 0; i < staffs.length; i++) {
+    var staffXs = staffs[i];
+    staffs[i] = new Staff(
+      staffXs.idEl,
+      staffXs.nameEl,
+      staffXs.emailEl,
+      staffXs.passEl,
+      staffXs.dateEl,
+      staffXs.salaryEl,
+      staffXs.positionEl,
+      staffXs.timeEl,
+    );
+  }
+
+  // students = [{id: 1, name: "Dan"}, {id: 2, name: "Hieu"}, {id: 3, name: "Thái"}]
+                     // X     
+  // Lần 1: i = 0 => students[0] => student = {id: 1, name: "Dan"}
+  // students[0] = new Student(...) lấy cái này gán lại cho X vì X đã bị xóa phương thức
+  // [{Student}, {}, {}]
+
+  // Lần 2: i = 1 => students[1] => student = {id: 2, name: "Hieu"}
+  // students[1] = new Student(...)
+  // [{Student}, {Student}, {}]
+
+  // Lần 3: i = 2 => students[2] => student = {id: 3, name: "Thái"}
+  // students[2] = new Student(...)
+
+  // Kết quả: [{Student}, {Student}, {Student}]
+
+  // B2: Gọi hàm display để hiển thị ra giao diện
+  display(students);
+}
 // DOM
 function addStaff() {
   var idEl = document.getElementById("tknv").value;
@@ -72,6 +115,7 @@ function addStaff() {
     timeEl
   );
   staffs.push(staffEl);
+  localStorage.setItem("staffs", JSON.stringify(staffs));
   display(staffs);
   resetForm()
 }
@@ -133,6 +177,7 @@ function deleteStaff(staffId) {
   if (index !== -1) {
     staffs.splice(index, 1);
   }
+  localStorage.setItem("staffs", JSON.stringify(staffs));
   display(staffs);
 }
 function selectStaff(staffId) {
@@ -173,6 +218,7 @@ function updateStaff() {
   );
   var index = findStaff(staffEls.idEl);
   staffs[index] = staffEls;
+  localStorage.setItem("staffs", JSON.stringify(staffs));
   display(staffs);
   resetForm()
 }
